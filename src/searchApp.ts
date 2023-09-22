@@ -10,6 +10,28 @@ import {
   TaskModuleResponse
 } from "botbuilder";
 
+const urlDialogTriggerValue = 500;
+const cardDialogTriggerValue = 501;
+
+const adaptiveCardBotJson = {
+  "contentType": "application/vnd.microsoft.card.adaptive",
+  "content": {
+      "type": "AdaptiveCard",
+      "body": [
+          {
+              "type": "TextBlock",
+              "text": "Here is a ninja cat:"
+          },
+          {
+              "type": "Image",
+              "url": "http://adaptivecards.io/content/cats/1.png",
+              "size": "Medium"
+          }
+      ],
+      "version": "1.0"
+  }
+}
+
 export class SearchApp extends TeamsActivityHandler {
   constructor() {
     super();
@@ -36,10 +58,18 @@ export class SearchApp extends TeamsActivityHandler {
         null, // No images
       [{
           type: 'invoke',
-          title: "Show Task Module",
+          title: "Show URL Task Module",
           value: {
               type: 'task/fetch',
-              data: 500
+              data: urlDialogTriggerValue
+          }
+        },
+        {
+          type: 'invoke',
+          title: "Show Adaptive Card Task Module",
+          value: {
+              type: 'task/fetch',
+              data: cardDialogTriggerValue
           }
         }]
       );
@@ -60,13 +90,30 @@ export class SearchApp extends TeamsActivityHandler {
 
   override handleTeamsTaskModuleFetch(context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
     const cardTaskFetchValue = taskModuleRequest.data.data;
-    var taskInfo = {
-      url: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
-      fallbackUrl: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
-      height: 510,
-      width: 450,
-      title: "A Task Module",
-    };
+    console.log(`FETCH VALUE: ${cardTaskFetchValue}`);
+
+    var taskInfo = {};
+
+    switch (cardTaskFetchValue) {
+      case urlDialogTriggerValue:
+        taskInfo = {
+          url: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
+          fallbackUrl: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
+          height: 510,
+          width: 450,
+          title: "URL Dialog",
+        };
+        break;
+
+      case cardDialogTriggerValue:
+        taskInfo = {
+          card: adaptiveCardBotJson,
+          height: 510,
+          width: 450,
+          title: "Adaptive Card Dialog",
+        };
+        break;
+    }
 
     return Promise.resolve({
       task: {
