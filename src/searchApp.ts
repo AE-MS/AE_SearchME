@@ -7,7 +7,9 @@ import {
   MessagingExtensionQuery,
   MessagingExtensionResponse,
   TaskModuleRequest,
-  TaskModuleResponse
+  TaskModuleResponse,
+  MessagingExtensionAction,
+  MessagingExtensionActionResponse
 } from "botbuilder";
 
 const urlDialogTriggerValue = 500;
@@ -26,6 +28,12 @@ const adaptiveCardBotJson = {
               "type": "Image",
               "url": "http://adaptivecards.io/content/cats/1.png",
               "size": "Medium"
+          }
+      ],
+      "actions": [
+          {
+              "type": "Action.Submit",
+              "title": "Submit"
           }
       ],
       "version": "1.0"
@@ -121,6 +129,35 @@ export class SearchApp extends TeamsActivityHandler {
         value: taskInfo,
       }
     });
-  }  
+  }
+
+  override handleTeamsTaskModuleSubmit(_context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
+    console.log(`HANDLING DIALOG SUBMIT: ${JSON.stringify(taskModuleRequest)}`);
+
+    return Promise.resolve({
+      task: {
+          type: 'message',
+          value: 'Thanks!'
+      }
+    });
+  }
+
+  override handleTeamsMessagingExtensionSubmitAction(_context: TurnContext, action: MessagingExtensionAction): Promise<MessagingExtensionActionResponse> {
+    console.log(`HANDLING ME SUBMIT ACTION: ${JSON.stringify(action)}`);
+    
+    const data = action.data;
+    const heroCard = CardFactory.heroCard(data.title, data.text);
+    heroCard.content.subtitle = data.subTitle;
+    const attachment = { contentType: heroCard.contentType, content: heroCard.content, preview: heroCard };
+
+    return Promise.resolve({
+      composeExtension: {
+        type: "result",
+        attachmentLayout: "list",
+        attachments: [],
+      },
+    });
+
+  }
 
 }
