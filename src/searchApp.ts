@@ -136,10 +136,23 @@ export class SearchApp extends TeamsActivityHandler {
 
     return Promise.resolve({
       task: {
-          type: 'message',
-          value: 'Thanks!'
+        type: 'continue',
+        value: {
+          url: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
+          fallbackUrl: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
+          height: 510,
+          width: 450,
+          title: "URL Dialog",
+        }
       }
     });
+
+    // return Promise.resolve({
+    //   task: {
+    //       type: 'message',
+    //       value: 'Thanks!'
+    //   }
+    // });
   }
 
   override handleTeamsMessagingExtensionSubmitAction(_context: TurnContext, action: MessagingExtensionAction): Promise<MessagingExtensionActionResponse> {
