@@ -6,6 +6,8 @@ import {
   TurnContext,
   MessagingExtensionQuery,
   MessagingExtensionResponse,
+  TaskModuleRequest,
+  TaskModuleResponse
 } from "botbuilder";
 
 export class SearchApp extends TeamsActivityHandler {
@@ -28,26 +30,21 @@ export class SearchApp extends TeamsActivityHandler {
 
     const attachments = [];
     response.data.objects.forEach((obj) => {
-      const adaptiveCard = CardFactory.adaptiveCard({
-        $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
-        type: "AdaptiveCard",
-        version: "1.4",
-        body: [
-          {
-            type: "TextBlock",
-            text: `${obj.package.name}`,
-            wrap: true,
-            size: "Large",
-          },
-          {
-            type: "TextBlock",
-            text: `${obj.package.description}`,
-            wrap: true,
-            size: "medium",
-          },
-        ],
-      });
-      const preview = CardFactory.heroCard(obj.package.name);
+      const adaptiveCard = CardFactory.heroCard(
+        `${obj.package.name}`,
+        `${obj.package.description}`,
+        null, // No images
+      [{
+          type: 'invoke',
+          title: "Show Task Module",
+          value: {
+              type: 'task/fetch',
+              data: 500
+          }
+        }]
+      );
+
+      const preview = CardFactory.heroCard(`${obj.package.name}???`);
       const attachment = { ...adaptiveCard, preview };
       attachments.push(attachment);
     });
@@ -60,4 +57,23 @@ export class SearchApp extends TeamsActivityHandler {
       },
     };
   }
+
+  override handleTeamsTaskModuleFetch(context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
+    const cardTaskFetchValue = taskModuleRequest.data.data;
+    var taskInfo = {
+      url: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
+      fallbackUrl: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
+      height: 510,
+      width: 450,
+      title: "A Task Module",
+    };
+
+    return Promise.resolve({
+      task: {
+        type: 'continue',
+        value: taskInfo,
+      }
+    });
+  }  
+
 }

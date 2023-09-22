@@ -55,5 +55,7 @@
         "identity",
         "messageTeamMembers"
     ],
-    "validDomains": []
+    "validDomains": [
+        "m365playgrcb3596tab.z5.web.core.windows.net"
+    ]
 }
