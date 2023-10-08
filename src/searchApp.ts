@@ -105,8 +105,8 @@ export class SearchApp extends TeamsActivityHandler {
     switch (cardTaskFetchValue) {
       case urlDialogTriggerValue:
         taskInfo = {
-          url: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
-          fallbackUrl: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
+          url: "https://helloworld36cffe.z5.web.core.windows.net/index.html#/tab",
+          fallbackUrl: "https://helloworld36cffe.z5.web.core.windows.net/index.html#/tab",
           height: 510,
           width: 450,
           title: "URL Dialog",
@@ -134,25 +134,70 @@ export class SearchApp extends TeamsActivityHandler {
   override handleTeamsTaskModuleSubmit(_context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
     console.log(`HANDLING DIALOG SUBMIT: ${JSON.stringify(taskModuleRequest)}`);
 
-    return Promise.resolve({
-      task: {
-        type: 'continue',
-        value: {
-          url: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
-          fallbackUrl: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
-          height: 510,
-          width: 450,
-          title: "URL Dialog",
+    if (taskModuleRequest.data === "requestUrl") {
+      return Promise.resolve({
+        task: {
+            type: 'message',
+            value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
         }
-      }
-    });
+      });
+    } else if (taskModuleRequest.data === "requestCard") {
+      return Promise.resolve({
+        task: {
+            type: 'message',
+            value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
+        }
+      });        
+    } else if (taskModuleRequest.data === "requestMessage") {
+      return Promise.resolve({
+        task: {
+            type: 'message',
+            value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
+        }
+      });        
+    } else if (taskModuleRequest.data === "requestConfig") {
+      return Promise.resolve({
+        task: {
+            type: 'message',
+            value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
+        }
+      });          
+    } else if (taskModuleRequest.data === "requestNoResponse") {
+      return Promise.resolve({
+        task: {
+            type: 'message',
+            value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
+        }
+      });
+    }
+    else {
+        return Promise.resolve({
+            task: {
+                type: 'message',
+                value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
+            }
+        });
+    }
 
     // return Promise.resolve({
     //   task: {
-    //       type: 'message',
-    //       value: 'Thanks!'
+    //     type: 'continue',
+    //     value: {
+    //       url: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
+    //       fallbackUrl: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
+    //       height: 510,
+    //       width: 450,
+    //       title: "URL Dialog",
+    //     }
     //   }
     // });
+
+    return Promise.resolve({
+      task: {
+          type: 'message',
+          value: `Here is your data: ${taskModuleRequest.data}`,
+      }
+    });
   }
 
   override handleTeamsMessagingExtensionSubmitAction(_context: TurnContext, action: MessagingExtensionAction): Promise<MessagingExtensionActionResponse> {
