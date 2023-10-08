@@ -32,9 +32,20 @@ const adaptiveCardBotJson = {
       ],
       "actions": [
           {
+              "data": "requestUrl",
               "type": "Action.Submit",
-              "title": "Submit"
-          }
+              "title": "Request URL Dialog"
+          },
+          {
+            "data": "requestCard",
+            "type": "Action.Submit",
+            "title": "Request Card Dialog"
+          },
+          {
+            "data": "requestMessage",
+            "type": "Action.Submit",
+            "title": "Request Message"
+          },
       ],
       "version": "1.0"
   }
@@ -96,6 +107,35 @@ export class SearchApp extends TeamsActivityHandler {
     };
   }
 
+  private createUrlTaskModuleResponse(): Promise<TaskModuleResponse> {
+    return Promise.resolve({
+      task: {
+        type: 'continue',
+        value: {
+          url: "https://helloworld36cffe.z5.web.core.windows.net/index.html#/tab",
+          fallbackUrl: "https://thisisignored.example.com/",
+          height: 510,
+          width: 450,
+          title: "URL Dialog",
+        }
+      }
+    });
+  }
+
+  private createCardTaskModuleResponse(): Promise<TaskModuleResponse> {
+    return Promise.resolve({
+      task: {
+        type: 'continue',
+        value: {
+          card: adaptiveCardBotJson,
+          height: 510,
+          width: 450,
+          title: "Adaptive Card Dialog",
+        }
+      }
+    });
+  }
+
   override handleTeamsTaskModuleFetch(context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
     const cardTaskFetchValue = taskModuleRequest.data.data;
     console.log(`FETCH VALUE: ${cardTaskFetchValue}`);
@@ -104,23 +144,10 @@ export class SearchApp extends TeamsActivityHandler {
 
     switch (cardTaskFetchValue) {
       case urlDialogTriggerValue:
-        taskInfo = {
-          url: "https://helloworld36cffe.z5.web.core.windows.net/index.html#/tab",
-          fallbackUrl: "https://helloworld36cffe.z5.web.core.windows.net/index.html#/tab",
-          height: 510,
-          width: 450,
-          title: "URL Dialog",
-        };
-        break;
+        return this.createUrlTaskModuleResponse();
 
       case cardDialogTriggerValue:
-        taskInfo = {
-          card: adaptiveCardBotJson,
-          height: 510,
-          width: 450,
-          title: "Adaptive Card Dialog",
-        };
-        break;
+        return this.createCardTaskModuleResponse();
     }
 
     return Promise.resolve({
@@ -135,24 +162,14 @@ export class SearchApp extends TeamsActivityHandler {
     console.log(`HANDLING DIALOG SUBMIT: ${JSON.stringify(taskModuleRequest)}`);
 
     if (taskModuleRequest.data === "requestUrl") {
-      return Promise.resolve({
-        task: {
-            type: 'message',
-            value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
-        }
-      });
+      return this.createUrlTaskModuleResponse();
     } else if (taskModuleRequest.data === "requestCard") {
-      return Promise.resolve({
-        task: {
-            type: 'message',
-            value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
-        }
-      });        
+      return this.createCardTaskModuleResponse();      
     } else if (taskModuleRequest.data === "requestMessage") {
       return Promise.resolve({
         task: {
             type: 'message',
-            value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
+            value: `Hello! This is a message!`,
         }
       });        
     } else if (taskModuleRequest.data === "requestConfig") {
@@ -163,12 +180,7 @@ export class SearchApp extends TeamsActivityHandler {
         }
       });          
     } else if (taskModuleRequest.data === "requestNoResponse") {
-      return Promise.resolve({
-        task: {
-            type: 'message',
-            value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
-        }
-      });
+      return;
     }
     else {
         return Promise.resolve({
@@ -178,26 +190,6 @@ export class SearchApp extends TeamsActivityHandler {
             }
         });
     }
-
-    // return Promise.resolve({
-    //   task: {
-    //     type: 'continue',
-    //     value: {
-    //       url: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
-    //       fallbackUrl: "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab",
-    //       height: 510,
-    //       width: 450,
-    //       title: "URL Dialog",
-    //     }
-    //   }
-    // });
-
-    return Promise.resolve({
-      task: {
-          type: 'message',
-          value: `Here is your data: ${taskModuleRequest.data}`,
-      }
-    });
   }
 
   override handleTeamsMessagingExtensionSubmitAction(_context: TurnContext, action: MessagingExtensionAction): Promise<MessagingExtensionActionResponse> {
