@@ -2,6 +2,7 @@ import { default as axios } from "axios";
 import * as querystring from "querystring";
 import {
   TeamsActivityHandler,
+  ActionTypes,
   CardFactory,
   TurnContext,
   MessagingExtensionQuery,
@@ -14,6 +15,7 @@ import {
 
 const urlDialogTriggerValue = 500;
 const cardDialogTriggerValue = 501;
+const configPageTriggerValue = 502;
 
 const adaptiveCardBotJson = {
   "contentType": "application/vnd.microsoft.card.adaptive",
@@ -140,22 +142,42 @@ export class SearchApp extends TeamsActivityHandler {
     const cardTaskFetchValue = taskModuleRequest.data.data;
     console.log(`FETCH VALUE: ${cardTaskFetchValue}`);
 
-    var taskInfo = {};
-
     switch (cardTaskFetchValue) {
       case urlDialogTriggerValue:
         return this.createUrlTaskModuleResponse();
 
       case cardDialogTriggerValue:
         return this.createCardTaskModuleResponse();
-    }
 
-    return Promise.resolve({
-      task: {
-        type: 'continue',
-        value: taskInfo,
-      }
-    });
+      default:
+        return;
+    }
+  }
+
+  override async handleTeamsMessagingExtensionConfigurationQuerySettingUrl(_context: TurnContext, _query: MessagingExtensionQuery): Promise<MessagingExtensionResponse> {
+    // The user has requested the Messaging Extension Configuration page settings url.
+    // const userSettings = await this.userConfigurationProperty.get(
+    //     context,
+    //     ''
+    // );
+    // const escapedSettings = userSettings
+    //     ? querystring.escape(userSettings)
+    //     : '';
+
+    return {
+        composeExtension: {
+            type: 'config',
+            suggestedActions: {
+                actions: [
+                    {
+                      title: "The title",
+                      type: ActionTypes.OpenUrl,
+                      value: `https://helloworld36cffe.z5.web.core.windows.net/index.html#/tab`
+                    },
+                ],
+            },
+        },
+    };
   }
 
   override handleTeamsTaskModuleSubmit(_context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {

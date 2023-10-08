@@ -27,6 +27,7 @@
     "composeExtensions": [
         {
             "botId": "${{BOT_ID}}",
+            "canUpdateConfiguration": true,
             "commands": [
                 {
                     "id": "searchQuery",
@@ -37,13 +38,6 @@
                     "description": "Test command to run query",
                     "title": "Search",
                     "type": "query",
-                    "fetchTask": false,
-                    "taskInfo": {
-                        "title": "Search",
-                        "height": "medium",
-                        "width": "medium",
-                        "url": "https://m365playgrcb3596tab.z5.web.core.windows.net/index.html#/tab"
-                    },
                     "parameters": [
                         {
                             "name": "searchQuery",
