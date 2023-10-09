@@ -73,7 +73,7 @@ export class SearchApp extends TeamsActivityHandler {
                   {
                     title: "Config Action Title",
                     type: ActionTypes.OpenUrl,
-                    value: `https://helloworld36cffe.z5.web.core.windows.net/index.html#/tab`
+                    value: `https://helloworld36cffe.z5.web.core.windows.net/index.html?page=config#/tab`
                   },
               ],
           },
@@ -160,10 +160,10 @@ export class SearchApp extends TeamsActivityHandler {
   }
 
   override handleTeamsTaskModuleFetch(context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
-    const cardTaskFetchValue = taskModuleRequest.data.data;
+    const taskFetchValue = taskModuleRequest.data.data;
     console.log(`TASK MODULE FETCH. Task module request: ${JSON.stringify(taskModuleRequest)}`);
 
-    switch (cardTaskFetchValue) {
+    switch (taskFetchValue) {
       case urlDialogTriggerValue:
         return this.createUrlTaskModuleResponse();
 
@@ -175,6 +175,11 @@ export class SearchApp extends TeamsActivityHandler {
     }
   }
 
+  override async handleTeamsMessagingExtensionConfigurationSetting(_context: TurnContext, settings: any): Promise<void> {
+    console.log(`CONFIG WAS SET. Settings: ${JSON.stringify(settings)}`);
+  }  
+
+  // I have no idea when this function can ever be called
   override async handleTeamsMessagingExtensionConfigurationQuerySettingUrl(context: TurnContext, query: MessagingExtensionQuery): Promise<MessagingExtensionResponse> {
     console.log(`CONFIG QUERY SETTING URL. Query: ${JSON.stringify(query)}, context: ${JSON.stringify(context)}`);
 
@@ -196,26 +201,27 @@ export class SearchApp extends TeamsActivityHandler {
 
   override handleTeamsTaskModuleSubmit(_context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
     console.log(`HANDLING DIALOG SUBMIT. Task module request: ${JSON.stringify(taskModuleRequest)}`);
+    const taskFetchValue = taskModuleRequest.data.data;
 
-    if (taskModuleRequest.data === "requestUrl") {
+    if (taskFetchValue === "requestUrl") {
       return this.createUrlTaskModuleResponse();
-    } else if (taskModuleRequest.data === "requestCard") {
+    } else if (taskFetchValue === "requestCard") {
       return this.createCardTaskModuleResponse();      
-    } else if (taskModuleRequest.data === "requestMessage") {
+    } else if (taskFetchValue === "requestMessage") {
       return Promise.resolve({
         task: {
             type: 'message',
             value: `Hello! This is a message!`,
         }
       });        
-    } else if (taskModuleRequest.data === "requestConfig") {
+    } else if (taskFetchValue === "requestConfig") {
       return Promise.resolve({
         task: {
             type: 'message',
             value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
         }
       });          
-    } else if (taskModuleRequest.data === "requestNoResponse") {
+    } else if (taskFetchValue === "requestNoResponse") {
       return;
     }
     else {
