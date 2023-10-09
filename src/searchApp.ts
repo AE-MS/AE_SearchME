@@ -64,49 +64,70 @@ export class SearchApp extends TeamsActivityHandler {
     query: MessagingExtensionQuery
   ): Promise<MessagingExtensionResponse> {
     const searchQuery = query.parameters[0].value;
-    const response = await axios.get(
-      `http://registry.npmjs.com/-/v1/search?${querystring.stringify({
-        text: searchQuery,
-        size: 8,
-      })}`
-    );
-
-    const attachments = [];
-    response.data.objects.forEach((obj) => {
-      const adaptiveCard = CardFactory.heroCard(
-        `${obj.package.name}`,
-        `${obj.package.description}`,
-        null, // No images
-      [{
-          type: 'invoke',
-          title: "Show URL Task Module",
-          value: {
-              type: 'task/fetch',
-              data: urlDialogTriggerValue
-          }
+    if (searchQuery === "config") {
+      return {
+        composeExtension: {
+          type: 'config',
+          suggestedActions: {
+              actions: [
+                  {
+                    title: "Config Action Title",
+                    type: ActionTypes.OpenUrl,
+                    value: `https://helloworld36cffe.z5.web.core.windows.net/index.html#/tab`
+                  },
+              ],
+          },
         },
-        {
-          type: 'invoke',
-          title: "Show Adaptive Card Task Module",
-          value: {
-              type: 'task/fetch',
-              data: cardDialogTriggerValue
-          }
-        }]
+      };
+    } else {
+      const response = await axios.get(
+        `http://registry.npmjs.com/-/v1/search?${querystring.stringify({
+          text: searchQuery,
+          size: 8,
+        })}`
       );
 
-      const preview = CardFactory.heroCard(`${obj.package.name}???`);
-      const attachment = { ...adaptiveCard, preview };
-      attachments.push(attachment);
-    });
+      const attachments = [];
+      response.data.objects.forEach((obj) => {
+        const adaptiveCard = CardFactory.heroCard(
+          `${obj.package.name}`,
+          `${obj.package.description}`,
+          null, // No images
+        [{
+            type: 'invoke',
+            title: "Show URL Task Module",
+            value: {
+                type: 'task/fetch',
+                data: urlDialogTriggerValue
+            }
+          },
+          {
+            type: 'invoke',
+            title: "Show Adaptive Card Task Module",
+            value: {
+                type: 'task/fetch',
+                data: cardDialogTriggerValue
+            }
+          }]
+        );
 
-    return {
-      composeExtension: {
-        type: "result",
-        attachmentLayout: "list",
-        attachments: attachments,
-      },
-    };
+        const preview = CardFactory.heroCard(`${obj.package.name}???`);
+        const attachment = { ...adaptiveCard, preview };
+        attachments.push(attachment);
+      });
+
+      return {
+        composeExtension: {
+          type: "result",
+          attachmentLayout: "list",
+          attachments: attachments,
+        },
+      };
+    }
+  }
+
+  private getRandomIntegerBetween(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   private createUrlTaskModuleResponse(): Promise<TaskModuleResponse> {
@@ -114,7 +135,7 @@ export class SearchApp extends TeamsActivityHandler {
       task: {
         type: 'continue',
         value: {
-          url: "https://helloworld36cffe.z5.web.core.windows.net/index.html#/tab",
+          url: `https://helloworld36cffe.z5.web.core.windows.net/index.html?randomNumber=${this.getRandomIntegerBetween(1, 1000)}#/tab`,
           fallbackUrl: "https://thisisignored.example.com/",
           height: 510,
           width: 450,
@@ -140,7 +161,7 @@ export class SearchApp extends TeamsActivityHandler {
 
   override handleTeamsTaskModuleFetch(context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
     const cardTaskFetchValue = taskModuleRequest.data.data;
-    console.log(`FETCH VALUE: ${cardTaskFetchValue}`);
+    console.log(`TASK MODULE FETCH. Task module request: ${JSON.stringify(taskModuleRequest)}`);
 
     switch (cardTaskFetchValue) {
       case urlDialogTriggerValue:
@@ -154,15 +175,8 @@ export class SearchApp extends TeamsActivityHandler {
     }
   }
 
-  override async handleTeamsMessagingExtensionConfigurationQuerySettingUrl(_context: TurnContext, _query: MessagingExtensionQuery): Promise<MessagingExtensionResponse> {
-    // The user has requested the Messaging Extension Configuration page settings url.
-    // const userSettings = await this.userConfigurationProperty.get(
-    //     context,
-    //     ''
-    // );
-    // const escapedSettings = userSettings
-    //     ? querystring.escape(userSettings)
-    //     : '';
+  override async handleTeamsMessagingExtensionConfigurationQuerySettingUrl(context: TurnContext, query: MessagingExtensionQuery): Promise<MessagingExtensionResponse> {
+    console.log(`CONFIG QUERY SETTING URL. Query: ${JSON.stringify(query)}, context: ${JSON.stringify(context)}`);
 
     return {
         composeExtension: {
@@ -181,7 +195,7 @@ export class SearchApp extends TeamsActivityHandler {
   }
 
   override handleTeamsTaskModuleSubmit(_context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
-    console.log(`HANDLING DIALOG SUBMIT: ${JSON.stringify(taskModuleRequest)}`);
+    console.log(`HANDLING DIALOG SUBMIT. Task module request: ${JSON.stringify(taskModuleRequest)}`);
 
     if (taskModuleRequest.data === "requestUrl") {
       return this.createUrlTaskModuleResponse();
