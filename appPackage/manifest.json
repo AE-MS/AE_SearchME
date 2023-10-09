@@ -58,6 +58,7 @@
     ],
     "validDomains": [
         "m365playgrcb3596tab.z5.web.core.windows.net",
-        "helloworld36cffe.z5.web.core.windows.net"
+        "helloworld36cffe.z5.web.core.windows.net",
+        "localhost:53000"
     ]
 }

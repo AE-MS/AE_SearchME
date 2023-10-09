@@ -79,7 +79,7 @@ export class SearchApp extends TeamsActivityHandler {
                   {
                     title: "Config Action Title",
                     type: ActionTypes.OpenUrl,
-                    value: `https://helloworld36cffe.z5.web.core.windows.net/index.html?page=config#/tab`
+                    value: `https://localhost:53000/index.html?page=config#/tab`
                   },
               ],
           },
