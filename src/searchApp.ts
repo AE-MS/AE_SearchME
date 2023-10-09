@@ -13,9 +13,10 @@ import {
   MessagingExtensionActionResponse
 } from "botbuilder";
 
-const urlDialogTriggerValue = 500;
-const cardDialogTriggerValue = 501;
-const configPageTriggerValue = 502;
+const urlDialogTriggerValue = "requestUrl";
+const cardDialogTriggerValue = "requestCard";
+const messagePageTriggerValue = "requestMessage";
+const noResponseTriggerValue = "requestNoResponse";
 
 const adaptiveCardBotJson = {
   "contentType": "application/vnd.microsoft.card.adaptive",
@@ -34,19 +35,24 @@ const adaptiveCardBotJson = {
       ],
       "actions": [
           {
-              "data": "requestUrl",
+              "data": { data: urlDialogTriggerValue },
               "type": "Action.Submit",
               "title": "Request URL Dialog"
           },
           {
-            "data": "requestCard",
+            "data": { data: cardDialogTriggerValue },
             "type": "Action.Submit",
             "title": "Request Card Dialog"
           },
           {
-            "data": "requestMessage",
+            "data": { data: messagePageTriggerValue },
             "type": "Action.Submit",
             "title": "Request Message"
+          },
+          {
+            "data": { data: noResponseTriggerValue },
+            "type": "Action.Submit",
+            "title": "Request No Response (close Dialog)"
           },
       ],
       "version": "1.0"
@@ -159,21 +165,52 @@ export class SearchApp extends TeamsActivityHandler {
     });
   }
 
+  private createMessageTaskModuleResponse(): Promise<TaskModuleResponse> {
+    return Promise.resolve({
+      task: {
+          type: 'message',
+          value: `Hello! This is a message!`,
+      }
+    });
+  }
+  
   override handleTeamsTaskModuleFetch(context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
-    const taskFetchValue = taskModuleRequest.data.data;
     console.log(`TASK MODULE FETCH. Task module request: ${JSON.stringify(taskModuleRequest)}`);
 
-    switch (taskFetchValue) {
+    return this.createResponseToTaskModuleRequest(taskModuleRequest);
+  }
+
+  override handleTeamsTaskModuleSubmit(_context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
+    console.log(`HANDLING DIALOG SUBMIT. Task module request: ${JSON.stringify(taskModuleRequest)}`);
+
+    return this.createResponseToTaskModuleRequest(taskModuleRequest);
+  }
+
+  private createResponseToTaskModuleRequest(taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
+    const taskRequestData = taskModuleRequest.data.data;
+
+    switch (taskRequestData) {
       case urlDialogTriggerValue:
         return this.createUrlTaskModuleResponse();
 
       case cardDialogTriggerValue:
         return this.createCardTaskModuleResponse();
 
-      default:
+      case messagePageTriggerValue:
+        return this.createMessageTaskModuleResponse();
+
+      case noResponseTriggerValue:
         return;
+
+      default:
+        return Promise.resolve({
+          task: {
+              type: 'message',
+              value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
+          }
+      });
     }
-  }
+  }  
 
   override async handleTeamsMessagingExtensionConfigurationSetting(_context: TurnContext, settings: any): Promise<void> {
     console.log(`CONFIG WAS SET. Settings: ${JSON.stringify(settings)}`);
@@ -197,41 +234,6 @@ export class SearchApp extends TeamsActivityHandler {
             },
         },
     };
-  }
-
-  override handleTeamsTaskModuleSubmit(_context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
-    console.log(`HANDLING DIALOG SUBMIT. Task module request: ${JSON.stringify(taskModuleRequest)}`);
-    const taskFetchValue = taskModuleRequest.data.data;
-
-    if (taskFetchValue === "requestUrl") {
-      return this.createUrlTaskModuleResponse();
-    } else if (taskFetchValue === "requestCard") {
-      return this.createCardTaskModuleResponse();      
-    } else if (taskFetchValue === "requestMessage") {
-      return Promise.resolve({
-        task: {
-            type: 'message',
-            value: `Hello! This is a message!`,
-        }
-      });        
-    } else if (taskFetchValue === "requestConfig") {
-      return Promise.resolve({
-        task: {
-            type: 'message',
-            value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
-        }
-      });          
-    } else if (taskFetchValue === "requestNoResponse") {
-      return;
-    }
-    else {
-        return Promise.resolve({
-            task: {
-                type: 'message',
-                value: `The submitted data did not contain a valid request (submitted data: ${taskModuleRequest.data})`,
-            }
-        });
-    }
   }
 
   override handleTeamsMessagingExtensionSubmitAction(_context: TurnContext, action: MessagingExtensionAction): Promise<MessagingExtensionActionResponse> {
