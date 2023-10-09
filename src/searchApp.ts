@@ -70,6 +70,7 @@ export class SearchApp extends TeamsActivityHandler {
     query: MessagingExtensionQuery
   ): Promise<MessagingExtensionResponse> {
     const searchQuery = query.parameters[0].value;
+    console.log(`SEARCH QUERY: ${JSON.stringify(query)}`);
     if (searchQuery === "config") {
       return {
         composeExtension: {
@@ -186,6 +187,18 @@ export class SearchApp extends TeamsActivityHandler {
     return this.createResponseToTaskModuleRequest(taskModuleRequest);
   }
 
+  override handleTeamsConfigSubmit(_context: TurnContext, configData: any): Promise<any> {
+    console.log(`HANDLING CONFIG SUBMIT, configData: ${configData}`);
+
+    return;
+  }
+
+  override handleTeamsConfigFetch(_context: TurnContext, configData: any): Promise<any> {
+    console.log(`HANDLING CONFIG FETCH, configData: ${configData}`);
+
+    return;
+  }
+
   private createResponseToTaskModuleRequest(taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
     const taskRequestData = taskModuleRequest.data.data;
 
@@ -212,6 +225,7 @@ export class SearchApp extends TeamsActivityHandler {
     }
   }  
 
+  // I have not been able to get this function ever called
   override async handleTeamsMessagingExtensionConfigurationSetting(_context: TurnContext, settings: any): Promise<void> {
     console.log(`CONFIG WAS SET. Settings: ${JSON.stringify(settings)}`);
   }  
