@@ -18,6 +18,9 @@ const cardDialogTriggerValue = "requestCard";
 const messagePageTriggerValue = "requestMessage";
 const noResponseTriggerValue = "requestNoResponse";
 
+const pageDomain = "localhost:53000";
+// const pageDomain = "helloworld36cffe.z5.web.core.windows.net";
+
 const adaptiveCardBotJson = {
   "contentType": "application/vnd.microsoft.card.adaptive",
   "content": {
@@ -80,10 +83,47 @@ export class SearchApp extends TeamsActivityHandler {
                   {
                     title: "Config Action Title",
                     type: ActionTypes.OpenUrl,
-                    value: `https://localhost:53000/index.html?page=config#/tab`
+                    value: `https://${pageDomain}/index.html?page=config#/tab`
                   },
               ],
           },
+        },
+      };
+    } else if (searchQuery === "auth") {
+      return {
+        composeExtension: {
+          type: 'auth',
+          suggestedActions: {
+              actions: [
+                  {
+                    title: "Auth Action Title",
+                    type: ActionTypes.OpenUrl,
+                    value: `https://${pageDomain}/index.html?page=auth#/tab`
+                  },
+              ],
+          },
+        },
+      };
+    } else if (searchQuery === "sso") {
+      return {
+        composeExtension: {
+          type: 'silentAuth',
+          suggestedActions: {
+              actions: [
+                  {
+                    title: "SSO?",
+                    type: ActionTypes.OpenUrl,
+                    value: `https://${pageDomain}/index.html?page=auth#/tab`
+                  },
+              ],
+          },
+        },
+      };
+    } else if (searchQuery === "message") {
+      return {
+        composeExtension: {
+          type: 'message',
+          text: "This is a message",
         },
       };
     } else {
@@ -142,7 +182,7 @@ export class SearchApp extends TeamsActivityHandler {
       task: {
         type: 'continue',
         value: {
-          url: `https://helloworld36cffe.z5.web.core.windows.net/index.html?randomNumber=${this.getRandomIntegerBetween(1, 1000)}#/tab`,
+          url: `https://${pageDomain}/index.html?randomNumber=${this.getRandomIntegerBetween(1, 1000)}#/tab`,
           fallbackUrl: "https://thisisignored.example.com/",
           height: 510,
           width: 450,
@@ -242,7 +282,7 @@ export class SearchApp extends TeamsActivityHandler {
                     {
                       title: "The title",
                       type: ActionTypes.OpenUrl,
-                      value: `https://helloworld36cffe.z5.web.core.windows.net/index.html#/tab`
+                      value: `https://${pageDomain}/index.html#/tab`
                     },
                 ],
             },
