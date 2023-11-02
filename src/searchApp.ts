@@ -18,8 +18,8 @@ const cardDialogTriggerValue = "requestCard";
 const messagePageTriggerValue = "requestMessage";
 const noResponseTriggerValue = "requestNoResponse";
 
-// const pageDomain = "localhost:53000";
-const pageDomain = "helloworld36cffe.z5.web.core.windows.net";
+const pageDomain = "localhost:53000";
+// const pageDomain = "helloworld36cffe.z5.web.core.windows.net";
 
 const adaptiveCardBotJson = {
   "contentType": "application/vnd.microsoft.card.adaptive",
@@ -67,7 +67,9 @@ export class SearchApp extends TeamsActivityHandler {
     super();
   }
 
-  // Search.
+  // Called when a search query is triggered by the user from the query box.
+  // This function is called in response to the "composeExtension/query" invoke message
+  // Possible repsonses: https://learn.microsoft.com/en-us/microsoftteams/platform/messaging-extensions/how-to/search-commands/respond-to-search?tabs=typescript#respond-to-user-requests
   public async handleTeamsMessagingExtensionQuery(
     context: TurnContext,
     query: MessagingExtensionQuery
