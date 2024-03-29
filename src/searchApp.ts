@@ -18,8 +18,8 @@ const cardDialogTriggerValue = "requestCard";
 const messagePageTriggerValue = "requestMessage";
 const noResponseTriggerValue = "requestNoResponse";
 
-const pageDomain = "localhost:53000";
-// const pageDomain = "helloworld36cffe.z5.web.core.windows.net";
+// const pageDomain = "localhost:53000";
+const pageDomain = "m365tab962ca2.z5.web.core.windows.net";
 
 const adaptiveCardBotJson = {
   "contentType": "application/vnd.microsoft.card.adaptive",

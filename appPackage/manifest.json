@@ -57,8 +57,7 @@
         "messageTeamMembers"
     ],
     "validDomains": [
-        "m365playgrcb3596tab.z5.web.core.windows.net",
-        "helloworld36cffe.z5.web.core.windows.net",
+        "m365tab962ca2.z5.web.core.windows.net",
         "localhost:53000"
     ]
 }
